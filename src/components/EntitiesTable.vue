@@ -170,8 +170,8 @@
                 v-if="columns.length > 0"
                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 bg-white sticky left-16 z-20 border-r border-gray-200"
                 style="width: 200px;"
+                v-html="highlightSearchText(entity[columns[0]], getSearchTermsForColumn(columns[0]))"
               >
-                {{ entity[columns[0]] || "-" }}
               </td>
               <!-- Remaining Column Data - Scrollable -->
               <td
@@ -179,8 +179,8 @@
                 :key="column"
                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                 style="width: 200px;"
+                v-html="highlightSearchText(entity[column], getSearchTermsForColumn(column))"
               >
-                {{ entity[column] || "-" }}
               </td>
             </tr>
           </tbody>
@@ -452,6 +452,46 @@ export default {
       } else {
         this.selectedRows.push(index);
       }
+    },
+    highlightSearchText(text, searchTerms = []) {
+      if (!text || searchTerms.length === 0) {
+        return text || '-';
+      }
+      
+      const textStr = String(text);
+      let highlightedText = textStr;
+      
+      // Create a combined regex for all search terms (case-insensitive)
+      const validSearchTerms = searchTerms.filter(term => term && term.trim() !== '');
+      if (validSearchTerms.length === 0) {
+        return textStr;
+      }
+      
+      // Escape special regex characters and create pattern
+      const escapedTerms = validSearchTerms.map(term => 
+        term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      );
+      const pattern = new RegExp(`(${escapedTerms.join('|')})`, 'gi');
+      
+      // Replace matches with highlighted spans
+      highlightedText = textStr.replace(pattern, '<mark class="bg-yellow-200 py-0.5 rounded">$1</mark>');
+      
+      return highlightedText;
+    },
+    getSearchTermsForColumn(columnName) {
+      const searchTerms = [];
+      
+      // Add global search term
+      if (this.globalSearch && this.globalSearch.trim() !== '') {
+        searchTerms.push(this.globalSearch.trim());
+      }
+      
+      // Add column-specific filter
+      if (this.filters[columnName] && this.filters[columnName].trim() !== '') {
+        searchTerms.push(this.filters[columnName].trim());
+      }
+      
+      return searchTerms;
     }
   },
 };
