@@ -279,6 +279,7 @@ export default {
       default: null
     }
   },
+  emits: ['columns-loaded'],
   data() {
     return {
       loading: false,
@@ -379,6 +380,11 @@ export default {
           } else if (this.entities.length > 0 && this.columns.length === 0) {
             // Fallback to entity keys for original entities
             this.columns = Object.keys(this.entities[0]);
+          }
+
+          // Emit columns for parent component to use (only for original entities, not custom tables)
+          if (!this.customTableId && this.columns.length > 0) {
+            this.$emit('columns-loaded', this.columns);
           }
         } else {
           this.error = result.error;

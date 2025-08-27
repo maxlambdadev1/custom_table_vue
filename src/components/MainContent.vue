@@ -37,26 +37,41 @@
       <EntitiesTable 
         :globalSearch="searchString"
         :customTableId="selectedCustomTable"
+        ref="entitiesTable"
+        @columns-loaded="handleColumnsLoaded"
         class="flex-1 flex flex-col min-h-0"
       />
     </div>
+
+    <!-- Table Builder Modal -->
+    <TableBuilderModal
+      :isVisible="showTableBuilderModal"
+      :entityFields="entityFields"
+      @close="closeTableBuilderModal"
+      @create="handleCreateTable"
+    />
   </main>
 </template>
 
 <script>
 import EntitiesTable from './EntitiesTable.vue'
+import TableBuilderModal from './TableBuilderModal.vue'
 import { customTablesService } from '../services/api.js'
 
 export default {
   name: 'MainContent',
   components: {
-    EntitiesTable
+    EntitiesTable,
+    TableBuilderModal
   },
   data() {
     return {
       searchString: '',
       customTables: [],
-      selectedCustomTable: ''
+      selectedCustomTable: '',
+      showTableBuilderModal: false,
+      entityFields: [],
+      isCreatingTable: false
     }
   },
   async mounted() {
@@ -79,8 +94,60 @@ export default {
       // Pass the selected custom table ID to EntitiesTable
       // EntitiesTable will handle the data fetching
     },
+    handleColumnsLoaded(columns) {
+      this.entityFields = columns
+    },
     createCustomTable() {
-      console.log('Create custom table clicked')
+      this.showTableBuilderModal = true
+    },
+    closeTableBuilderModal() {
+      this.showTableBuilderModal = false
+    },
+    async handleCreateTable(tableData) {
+      if (this.isCreatingTable) {
+        return
+      }
+      
+      this.isCreatingTable = true
+      
+      try {
+        // Format the data according to the API specification
+        const apiData = {
+          name: tableData.name,
+          src_table: "entities",
+          rows: tableData.selectedFields, // Array of original column names from entities table
+          datapoints: tableData.selectedFields.map(field => tableData.fieldNames[field] || field), // Array of updated names from right section
+          columns: tableData.selectedFields.map(field => ({
+            name: tableData.fieldNames[field] || field,
+            type: tableData.fieldTypes[field] || 'TEXT'
+          })),
+          sharedWith: tableData.sharedWith || ''
+        }
+        const result = await customTablesService.createCustomTable(apiData)
+        
+        if (result.success) {
+          // Close modal
+          this.showTableBuilderModal = false
+          
+          // Refresh custom tables list
+          await this.fetchCustomTables()
+          
+          // Select the newly created table if it has a config_id
+          if (result.data && result.data.config_id) {
+            this.selectedCustomTable = result.data.config_id.toString()
+          }
+          
+          console.log('Table created successfully:', result.data)
+        } else {
+          console.error('Failed to create table:', result.error)
+          alert('Failed to create table: ' + result.error)
+        }
+      } catch (error) {
+        console.error('Error creating table:', error)
+        alert('Error creating table: ' + error.message)
+      } finally {
+        this.isCreatingTable = false
+      }
     }
   },
   computed: {

@@ -23,6 +23,36 @@ export const customTablesService = {
         error: error.message
       }
     }
+  },
+
+  async createCustomTable(tableData) {
+    const url = new URL('/dtables/create', baseURL)
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tableData)
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      return {
+        success: true,
+        data
+      }
+    } catch (error) {
+      console.error('Create Custom Table API Error:', error)
+      return {
+        success: false,
+        error: error.message
+      }
+    }
   }
 }
 
