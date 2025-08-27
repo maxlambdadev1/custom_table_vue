@@ -395,8 +395,10 @@ export default {
           if (result.data.columns && result.data.columns.length > 0) {
             this.columns = result.data.columns;
           } else if (this.entities.length > 0 && this.columns.length === 0) {
-            // Fallback to entity keys for original entities
-            this.columns = Object.keys(this.entities[0]);
+            // For original entities, show specific 5 columns
+            const desiredColumns = ["Registration ID", "Legal Name", "Status", "Address", "Last Scan"];
+            const allColumns = Object.keys(this.entities[0]);
+            this.columns = desiredColumns.filter(col => allColumns.includes(col));
           }
 
           // Emit columns for parent component to use (only for original entities, not custom tables)
