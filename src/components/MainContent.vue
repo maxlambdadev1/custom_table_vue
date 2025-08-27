@@ -52,12 +52,20 @@
       @close="closeTableBuilderModal"
       @create="handleCreateTable"
     />
+
+    <!-- Table Success Modal -->
+    <TableSuccessModal
+      :isVisible="showSuccessModal"
+      :tableName="createdTableName"
+      @close="closeSuccessModal"
+    />
   </main>
 </template>
 
 <script>
 import EntitiesTable from "./EntitiesTable.vue";
 import TableBuilderModal from "./TableBuilderModal.vue";
+import TableSuccessModal from "./TableSuccessModal.vue";
 import { customTablesService } from "../services/api.js";
 
 export default {
@@ -65,6 +73,7 @@ export default {
   components: {
     EntitiesTable,
     TableBuilderModal,
+    TableSuccessModal,
   },
   data() {
     return {
@@ -72,6 +81,8 @@ export default {
       customTables: [],
       selectedCustomTable: "",
       showTableBuilderModal: false,
+      showSuccessModal: false,
+      createdTableName: "",
       entityFields: [],
       isCreatingTable: false,
     };
@@ -105,6 +116,10 @@ export default {
     closeTableBuilderModal() {
       this.showTableBuilderModal = false;
     },
+    closeSuccessModal() {
+      this.showSuccessModal = false;
+      this.createdTableName = "";
+    },
     async handleCreateTable(tableData) {
       if (this.isCreatingTable) {
         return;
@@ -130,8 +145,12 @@ export default {
         const result = await customTablesService.createCustomTable(apiData);
 
         if (result.success) {
-          // Close modal
+          // Close table builder modal
           this.showTableBuilderModal = false;
+
+          // Show success modal
+          this.createdTableName = tableData.name;
+          this.showSuccessModal = true;
 
           // Refresh custom tables list
           await this.fetchCustomTables();
