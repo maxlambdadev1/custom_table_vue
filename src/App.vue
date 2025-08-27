@@ -9,16 +9,16 @@
 </template>
 
 <script>
-import TopBar from './components/TopBar.vue'
-import Sidebar from './components/Sidebar.vue'
-import MainContent from './components/MainContent.vue'
+import TopBar from "./components/TopBar.vue";
+import Sidebar from "./components/Sidebar.vue";
+import MainContent from "./components/MainContent.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     TopBar,
     Sidebar,
-    MainContent
-  }
-}
+    MainContent,
+  },
+};
 </script>

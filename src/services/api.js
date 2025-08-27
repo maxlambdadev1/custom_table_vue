@@ -3,14 +3,14 @@ const baseURL = import.meta.env.VITE_BASE_URL
 export const customTablesService = {
   async fetchCustomTables() {
     const url = new URL('/dtables/list', baseURL)
-    
+
     try {
       const response = await fetch(url.toString())
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const data = await response.json()
       return {
         success: true,
@@ -27,7 +27,7 @@ export const customTablesService = {
 
   async createCustomTable(tableData) {
     const url = new URL('/dtables/create', baseURL)
-    
+
     try {
       const response = await fetch(url.toString(), {
         method: 'POST',
@@ -36,11 +36,11 @@ export const customTablesService = {
         },
         body: JSON.stringify(tableData)
       })
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const data = await response.json()
       return {
         success: true,
@@ -69,42 +69,42 @@ export const entitiesService = {
     // Use custom table endpoint if customTableId is provided
     const endpoint = customTableId ? '/dtables/fetch' : '/entities'
     const url = new URL(endpoint, baseURL)
-    
+
     const params = new URLSearchParams()
     params.append('page', page.toString())
     params.append('page_size', page_size.toString())
-    
+
     // Add config_id for custom tables
     if (customTableId) {
       params.append('config_id', customTableId.toString())
     }
-    
+
     if (sort_by) {
       params.append('sort_by', sort_by)
       params.append('sort_dir', sort_dir)
     }
-    
+
     if (global) {
       params.append('global', global)
     }
-    
+
     Object.entries(filters).forEach(([column, value]) => {
       if (value && value.trim() !== '') {
         params.append(`filters[${column}]`, value)
       }
     })
-    
+
     url.search = params.toString()
-    
+
     try {
       const response = await fetch(url.toString())
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const data = await response.json()
-      
+
       // Handle custom table response format
       if (customTableId && data.columns) {
         return {
@@ -118,7 +118,7 @@ export const entitiesService = {
           }
         }
       }
-      
+
       // Handle original entities response format  
       return {
         success: true,

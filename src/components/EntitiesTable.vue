@@ -30,15 +30,21 @@
     </div>
 
     <!-- Table Container -->
-    <div class="bg-white rounded-lg shadow flex-1 flex flex-col" style="max-width: calc(100vw - 256px - 48px);">
+    <div
+      class="bg-white rounded-lg shadow flex-1 flex flex-col"
+      style="max-width: calc(100vw - 256px - 48px)"
+    >
       <!-- Single Table with Sticky Header -->
-      <div class="overflow-auto" style="height: calc(100vh - 250px);">
+      <div class="overflow-auto" style="height: calc(100vh - 250px)">
         <table class="min-w-full divide-y divide-gray-200">
           <!-- Table Header -->
           <thead class="bg-gray-50 sticky top-0 z-30 shadow-sm">
             <tr>
               <!-- Select All Checkbox -->
-              <th class="px-6 py-3 text-left bg-gray-50 sticky left-0 z-40 border-r border-gray-200" style="width: 64px;">
+              <th
+                class="px-6 py-3 text-left bg-gray-50 sticky left-0 z-40 border-r border-gray-200"
+                style="width: 64px"
+              >
                 <input
                   type="checkbox"
                   :checked="allSelected"
@@ -50,7 +56,7 @@
               <th
                 v-if="columns.length > 0"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 sticky left-16 z-40 border-r border-gray-200"
-                style="width: 200px;"
+                style="width: 200px"
               >
                 <div class="flex items-center space-x-2">
                   <span>{{ columns[0] }}</span>
@@ -96,7 +102,7 @@
                 v-for="column in columns.slice(1)"
                 :key="column"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                style="width: 200px;"
+                style="width: 200px"
               >
                 <div class="flex items-center space-x-2">
                   <span>{{ column }}</span>
@@ -157,7 +163,10 @@
               class="hover:bg-gray-50"
             >
               <!-- Row Checkbox - Fixed -->
-              <td class="px-6 py-4 bg-white sticky left-0 z-20 border-r border-gray-200" style="width: 64px;">
+              <td
+                class="px-6 py-4 bg-white sticky left-0 z-20 border-r border-gray-200"
+                style="width: 64px"
+              >
                 <input
                   type="checkbox"
                   :checked="selectedRows.includes(index)"
@@ -169,19 +178,27 @@
               <td
                 v-if="columns.length > 0"
                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 bg-white sticky left-16 z-20 border-r border-gray-200"
-                style="width: 200px;"
-                v-html="highlightSearchText(entity[columns[0]], getSearchTermsForColumn(columns[0]))"
-              >
-              </td>
+                style="width: 200px"
+                v-html="
+                  highlightSearchText(
+                    entity[columns[0]],
+                    getSearchTermsForColumn(columns[0])
+                  )
+                "
+              ></td>
               <!-- Remaining Column Data - Scrollable -->
               <td
                 v-for="column in columns.slice(1)"
                 :key="column"
                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
-                style="width: 200px;"
-                v-html="highlightSearchText(entity[column], getSearchTermsForColumn(column))"
-              >
-              </td>
+                style="width: 200px"
+                v-html="
+                  highlightSearchText(
+                    entity[column],
+                    getSearchTermsForColumn(column)
+                  )
+                "
+              ></td>
             </tr>
           </tbody>
         </table>
@@ -276,10 +293,10 @@ export default {
     },
     customTableId: {
       type: [String, Number],
-      default: null
-    }
+      default: null,
+    },
   },
-  emits: ['columns-loaded'],
+  emits: ["columns-loaded"],
   data() {
     return {
       loading: false,
@@ -349,7 +366,7 @@ export default {
         this.fetchData();
       },
       immediate: false,
-    }
+    },
   },
   async mounted() {
     await this.fetchData();
@@ -367,7 +384,7 @@ export default {
           sort_dir: this.sortDir,
           global: this.globalSearch || null,
           filters: this.filters,
-          customTableId: this.customTableId
+          customTableId: this.customTableId,
         });
 
         if (result.success) {
@@ -384,16 +401,20 @@ export default {
 
           // Emit columns for parent component to use (only for original entities, not custom tables)
           if (!this.customTableId && this.columns.length > 0) {
-            this.$emit('columns-loaded', this.columns);
+            this.$emit("columns-loaded", this.columns);
           }
         } else {
           this.error = result.error;
-          
+
           // Handle sorting failure - clear sort and retry
-          if (this.sortBy && this.customTableId && result.error.includes('sort')) {
-            console.warn('Sorting failed, retrying without sort');
+          if (
+            this.sortBy &&
+            this.customTableId &&
+            result.error.includes("sort")
+          ) {
+            console.warn("Sorting failed, retrying without sort");
             this.sortBy = null;
-            this.sortDir = 'asc';
+            this.sortDir = "asc";
             // Retry without sort
             setTimeout(() => {
               this.fetchData();
@@ -403,12 +424,12 @@ export default {
         }
       } catch (err) {
         this.error = err.message;
-        
+
         // Handle potential sorting errors in catch block too
-        if (this.sortBy && this.customTableId && err.message.includes('sort')) {
-          console.warn('Sorting error caught, retrying without sort');
+        if (this.sortBy && this.customTableId && err.message.includes("sort")) {
+          console.warn("Sorting error caught, retrying without sort");
           this.sortBy = null;
-          this.sortDir = 'asc';
+          this.sortDir = "asc";
           setTimeout(() => {
             this.fetchData();
           }, 100);
@@ -461,44 +482,49 @@ export default {
     },
     highlightSearchText(text, searchTerms = []) {
       if (!text || searchTerms.length === 0) {
-        return text || '-';
+        return text || "-";
       }
-      
+
       const textStr = String(text);
       let highlightedText = textStr;
-      
+
       // Create a combined regex for all search terms (case-insensitive)
-      const validSearchTerms = searchTerms.filter(term => term && term.trim() !== '');
+      const validSearchTerms = searchTerms.filter(
+        (term) => term && term.trim() !== ""
+      );
       if (validSearchTerms.length === 0) {
         return textStr;
       }
-      
+
       // Escape special regex characters and create pattern
-      const escapedTerms = validSearchTerms.map(term => 
-        term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const escapedTerms = validSearchTerms.map((term) =>
+        term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
       );
-      const pattern = new RegExp(`(${escapedTerms.join('|')})`, 'gi');
-      
+      const pattern = new RegExp(`(${escapedTerms.join("|")})`, "gi");
+
       // Replace matches with highlighted spans
-      highlightedText = textStr.replace(pattern, '<mark class="bg-yellow-200 py-0.5 rounded">$1</mark>');
-      
+      highlightedText = textStr.replace(
+        pattern,
+        '<mark class="bg-yellow-200 py-0.5 rounded">$1</mark>'
+      );
+
       return highlightedText;
     },
     getSearchTermsForColumn(columnName) {
       const searchTerms = [];
-      
+
       // Add global search term
-      if (this.globalSearch && this.globalSearch.trim() !== '') {
+      if (this.globalSearch && this.globalSearch.trim() !== "") {
         searchTerms.push(this.globalSearch.trim());
       }
-      
+
       // Add column-specific filter
-      if (this.filters[columnName] && this.filters[columnName].trim() !== '') {
+      if (this.filters[columnName] && this.filters[columnName].trim() !== "") {
         searchTerms.push(this.filters[columnName].trim());
       }
-      
+
       return searchTerms;
-    }
+    },
   },
 };
 </script>
