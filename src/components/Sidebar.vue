@@ -1,5 +1,5 @@
 <template>
-  <aside class="w-64 bg-gray-50 border-r border-gray-200 h-full">
+  <aside class="w-64 flex-shrink-0 bg-gray-50 border-r border-gray-200 h-full">
     <nav class="p-4">
       <ul class="space-y-2">
         <li>

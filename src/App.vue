@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen flex flex-col bg-gray-100">
     <TopBar />
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1">
       <Sidebar />
       <MainContent />
     </div>

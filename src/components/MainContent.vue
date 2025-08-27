@@ -1,6 +1,6 @@
 <template>
-  <main class="flex-1 overflow-auto">
-    <div class="p-6">
+  <main class="flex-1 flex flex-col">
+    <div class="p-6 flex-1 flex flex-col">
       <div class="flex items-center justify-between mb-6">
         <div class="flex-1 max-w-md">
           <input
@@ -18,18 +18,22 @@
         </button>
       </div>
       
-      <div class="bg-white rounded-lg shadow">
-        <div class="p-6 text-center text-gray-500">
-          Content area - ready for custom table implementation
-        </div>
-      </div>
+      <EntitiesTable 
+        :globalSearch="searchString"
+        class="flex-1 flex flex-col min-h-0"
+      />
     </div>
   </main>
 </template>
 
 <script>
+import EntitiesTable from './EntitiesTable.vue'
+
 export default {
   name: 'MainContent',
+  components: {
+    EntitiesTable
+  },
   data() {
     return {
       searchString: ''
