@@ -274,6 +274,10 @@ export default {
       type: String,
       default: "",
     },
+    customTableId: {
+      type: [String, Number],
+      default: null
+    }
   },
   data() {
     return {
@@ -336,6 +340,15 @@ export default {
       },
       immediate: false,
     },
+    customTableId: {
+      handler() {
+        this.currentPage = 1;
+        this.columns = [];
+        this.selectedRows = [];
+        this.fetchData();
+      },
+      immediate: false,
+    }
   },
   async mounted() {
     await this.fetchData();
@@ -353,20 +366,48 @@ export default {
           sort_dir: this.sortDir,
           global: this.globalSearch || null,
           filters: this.filters,
+          customTableId: this.customTableId
         });
 
         if (result.success) {
           this.entities = result.data.results || [];
           this.total = result.data.total || 0;
 
-          if (this.entities.length > 0 && this.columns.length === 0) {
+          // Use columns from API response if available (for custom tables)
+          if (result.data.columns && result.data.columns.length > 0) {
+            this.columns = result.data.columns;
+          } else if (this.entities.length > 0 && this.columns.length === 0) {
+            // Fallback to entity keys for original entities
             this.columns = Object.keys(this.entities[0]);
           }
         } else {
           this.error = result.error;
+          
+          // Handle sorting failure - clear sort and retry
+          if (this.sortBy && this.customTableId && result.error.includes('sort')) {
+            console.warn('Sorting failed, retrying without sort');
+            this.sortBy = null;
+            this.sortDir = 'asc';
+            // Retry without sort
+            setTimeout(() => {
+              this.fetchData();
+            }, 100);
+            return;
+          }
         }
       } catch (err) {
         this.error = err.message;
+        
+        // Handle potential sorting errors in catch block too
+        if (this.sortBy && this.customTableId && err.message.includes('sort')) {
+          console.warn('Sorting error caught, retrying without sort');
+          this.sortBy = null;
+          this.sortDir = 'asc';
+          setTimeout(() => {
+            this.fetchData();
+          }, 100);
+          return;
+        }
       } finally {
         this.loading = false;
       }
